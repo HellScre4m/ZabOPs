@@ -1,0 +1,3 @@
+[submodule "py-zabbix"]
+	path = py-zabbix
+	url = https://github.com/adubkov/py-zabbix
