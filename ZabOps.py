@@ -6,11 +6,12 @@ import pyzabbix
 from pyzabbix import ZabbixAPI
 
 import argparse
+import json
 import cx_Oracle
-import zabops_config
 
 def printerr(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
+
 
 class Main(Checks):
     def __init__(self):
@@ -36,43 +37,50 @@ class Main(Checks):
             help="Additional verbose information")
         parser.add_argument(
             '--check', help="Check which agent wants to be done")
-        if not check:
-            printerr('No checks specified, exiting');
-            return -1;
         self.args = parser.parse_args()
-
+        with open('../config/zabps-config.json') as zabops_config:
+            zabops_config = zabops_config.read()
+        self.config = json.loads(zabops_config)
+        if self.args.check is None
+            #  log('No checks specified, exiting');
+            sys.exit(0)
         if self.args.username is None:
-            self.args.username = zabops_config.username
+            self.args.username = self.config.username
         if self.args.password is None:
-            self.args.password = zabops_config.password
+            self.args.password = self.config.password
         if self.args.address is None:
-            self.args.address = zabops_config.address
+            self.args.address = self.config.address
         if self.args.port is None:
-            self.args.port = zabops_config.port
+            self.args.port = self.config.port
 
-        def db_connect(self):
-            dsn = cx_Oracle.makedsn(self.args.address, self.args.port,
-                                    self.args.database)
-            self.pool = cx_Oracle.SessionPool(
-                user=self.args.username,
-                password=self.args.password,
-                dsn=dsn,
-                min=1,
-                max=3,
-                increment=1)
-            self.db = self.pool.acquire()
-            self.cur = self.db.cursor()
+    def db_connect(self):
+        dsn = cx_Oracle.makedsn(self.args.address, self.args.port,
+                                self.args.database)
+        self.pool = cx_Oracle.SessionPool(
+            user=self.args.username,
+            password=self.args.password,
+            dsn=dsn,
+            min=1,
+            max=3,
+            increment=1)
+        self.db = self.pool.acquire()
+        self.cur = self.db.cursor()
 
-        def db_close(self):
-            self.cur.close()
-            self.pool.release(self.db)
+    def db_close(self):
+        self.cur.close()
+        self.pool.release(self.db)
 
+    def checks(check):
+        dba_config =
     def __call__(self):
         try:
             self.db_connect()
-        except Exception, err:
-            print
-            str(err)
-            return 1
-        checks(self.args.check)
-        self.db_close()
+            checks(self.args.check)
+        except Exception as err:
+            # log(str(err))
+            sys.exit(1)
+        finally:
+            self.db_close()
+
+
+
