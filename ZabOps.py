@@ -7,13 +7,13 @@ from pyzabbix import ZabbixAPI
 
 import argparse
 import json
-import cx_Oracle
+
 
 def printerr(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 
-class Main(Checks):
+class Main:
     def __init__(self):
         parser = argparse.ArgumentParser()
         parser.add_argument(
@@ -38,7 +38,7 @@ class Main(Checks):
         parser.add_argument(
             '--check', help="Check which agent wants to be done")
         self.args = parser.parse_args()
-        with open('../config/zabps-config.json') as zabops_config:
+        with open('../config/zabops-config.json') as zabops_config:
             zabops_config = zabops_config.read()
         self.config = json.loads(zabops_config)
         if self.args.check is None
@@ -71,7 +71,10 @@ class Main(Checks):
         self.pool.release(self.db)
 
     def checks(check):
-        dba_config =
+    with open('../config/dba-config.json') as dba_config:
+        dba_config = json.load(dba_config)
+    sql = getattr(dba_config, check).sql
+
     def __call__(self):
         try:
             self.db_connect()
